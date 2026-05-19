@@ -527,7 +527,7 @@ def save_settings():
     conn.close()
     return jsonify({'status': 'success'})
 
-if __name__ == '__main__':
+def startup_init():
     # Update sales schema to include archived if not exists
     conn = get_db()
     cursor = conn.cursor()
@@ -563,11 +563,14 @@ if __name__ == '__main__':
             print("Download complete!")
         except Exception as e:
             print(f"Download failed: {e}")
-            # create fallback empty placeholder
             if not os.path.exists(xlsx_path):
                 with open(xlsx_path, 'w') as f:
                     f.write('')
-            
-    # Run the server
+
+# Run initialization immediately when module loads
+startup_init()
+
+if __name__ == '__main__':
+    # Run the server directly (for local testing)
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=False)
