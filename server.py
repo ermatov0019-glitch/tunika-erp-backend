@@ -219,18 +219,24 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Serves frontend
+# Serves frontend or API status
 @app.route('/')
 def index():
-    return send_file('index.html')
+    if os.path.exists('index.html'):
+        return send_file('index.html')
+    return jsonify({"status": "Tunika ERP Backend is running!"})
 
 @app.route('/manifest.json')
 def manifest():
-    return send_file('manifest.json')
+    if os.path.exists('manifest.json'):
+        return send_file('manifest.json')
+    return jsonify({"error": "Not found"}), 404
 
 @app.route('/sw.js')
 def sw():
-    return send_file('sw.js')
+    if os.path.exists('sw.js'):
+        return send_file('sw.js')
+    return jsonify({"error": "Not found"}), 404
 
 @app.route('/libs/<path:filename>')
 def serve_libs(filename):
