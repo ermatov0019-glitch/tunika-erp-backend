@@ -308,7 +308,7 @@ import aiohttp
 async def sync_products_from_api():
     try:
         async with aiohttp.ClientSession() as http_session:
-            async with http_session.get("https://tunika-erp.onrender.com/api/state") as resp:
+            async with http_session.get("https://tunika-erp-backend-1.onrender.com/api/state") as resp:
                 if resp.status == 200:
                     data = await resp.json()
                     products = data.get("products", [])
