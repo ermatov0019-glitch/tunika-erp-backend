@@ -22,6 +22,14 @@ async def cmd_admin(message: Message):
         return await message.answer("Sizda admin huquqlari yo'q.")
     await message.answer("Admin paneliga xush kelibsiz!", reply_markup=admin_menu_keyboard())
 
+@router.message(F.text == "🔄 Saytdan sinxronlash")
+async def handle_sync(message: Message):
+    if not is_admin(message): return
+    await message.answer("⏳ Sayt bilan sinxronlanmoqda... Iltimos kuting.")
+    from database.queries import sync_products_from_api
+    success, msg = await sync_products_from_api()
+    await message.answer(msg)
+
 # ---------------- 1. DASHBOARD ----------------
 @router.message(F.text == "🚀 Dashboard")
 async def show_dashboard(message: Message):

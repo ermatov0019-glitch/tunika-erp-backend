@@ -15,6 +15,6 @@ def admin_menu_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton(text="🛒 Katalog"), KeyboardButton(text="🏢 Ombor")],
         [KeyboardButton(text="👥 Mijozlar"), KeyboardButton(text="💸 Xarajatlar")],
         [KeyboardButton(text="🖼 Albom"), KeyboardButton(text="📊 Hisobotlar")],
-        [KeyboardButton(text="⚙️ Sozlamalar")]
+        [KeyboardButton(text="⚙️ Sozlamalar"), KeyboardButton(text="🔄 Saytdan sinxronlash")]
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
