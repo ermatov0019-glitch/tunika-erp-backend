@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tunika ERP - Mobil Chop Etish Tizimi</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* === DIZAYN TIZIMI VA RANG PALITRASI (PREMIUM DARK MODE VA GLASSMORPHISM) === */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-color: #38bdf8;
+            --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            
+            /* Receipt styles (Thermal Paper Emulator) */
+            --receipt-bg: #ffffff;
+            --receipt-text: #1e293b;
+            --receipt-border: #cbd5e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 800px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 30px;
+            width: 100%;
+            max-width: 900px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* === BOSHqaruv paneli (GLASSMORPHISM) === */
+        .controls-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 30px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            height: fit-content;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+            margin-bottom: 4px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .select-style, .input-style {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .select-style:focus, .input-style:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+        }
+
+        /* === CHOP ETISH TUGMALARI === */
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border-radius: 14px;
+            padding: 16px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%) scale(0);
+            border-radius: 50%;
+            transition: transform 0.5s ease;
+        }
+
+        .btn:active::after {
+            transform: translate(-50%, -50%) scale(2);
+            transition: 0s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            width: fit-content;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--warning-color);
+            animation: pulse 1.5s infinite;
+        }
+
+        /* === THERMAL RECEIPT EMULATOR === */
+        .receipt-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .receipt-paper {
+            background: var(--receipt-bg);
+            color: var(--receipt-text);
+            padding: 24px 16px;
+            border-radius: 4px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 80mm; /* Standart 80mm printer */
+            transition: all 0.3s ease;
+            position: relative;
+            border-bottom: 8px dashed var(--receipt-border);
+        }
+
+        /* Paper size options */
+        .paper-58mm {
+            width: 58mm;
+            font-size: 0.8rem !important;
+        }
+
+        .receipt-content {
+            font-family: 'Courier Prime', 'Courier', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .receipt-logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .receipt-divider {
+            border-top: 1px dashed var(--receipt-text);
+            margin: 8px 0;
+            width: 100%;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .receipt-row.bold {
+            font-weight: bold;
+        }
+
+        .receipt-items {
+            margin: 12px 0;
+        }
+
+        .receipt-item-details {
+            display: flex;
+            justify-content: space-between;
+            padding-left: 12px;
+            color: #475569;
+            font-size: 0.85rem;
+        }
+
+        .receipt-total {
+            margin-top: 12px;
+            font-size: 1rem;
+            border-top: 1px solid var(--receipt-text);
+            padding-top: 8px;
+        }
+
+        .receipt-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.8rem;
+        }
+
+        .receipt-barcode {
+            margin: 15px auto 5px auto;
+            text-align: center;
+            font-size: 1.4rem;
+            letter-spacing: 4px;
+            font-family: 'Libre Barcode 39', 'Courier New', monospace;
+        }
+
+        /* === INTERFEYS QO'LLANMASI === */
+        .guide-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 30px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            margin-top: 30px;
+            width: 100%;
+            max-width: 900px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .guide-step {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .guide-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-num {
+            background: var(--accent-gradient);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .step-content h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .step-content p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .code-block {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px;
+            color: #38bdf8;
+            font-family: monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-top: 10px;
+            white-space: pre;
+        }
+
+        /* === PRINT CSS STYLE (CHOP ETILGANDA BARCHA INTERFEYSNI YASHIRADI VA FAQAT CHEKNI CHIQARADI) === */
+        @media print {
+            body, html {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            /* Barcha boshqaruv elementlarini va fonlarni yashiramiz */
+            header, .controls-card, .guide-card, .status-badge, .paper-size-selector, .receipt-container > span {
+                display: none !important;
+            }
+
+            .container {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .receipt-paper {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 10px !important;
+                width: 100% !important; /* Printer drayveri kenglikni boshqaradi */
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+
+            /* Sahifadagi chekka masofalarni va sarlavhalarni tozalaymiz */
+            @page {
+                margin: 0;
+            }
+        }
+
+        /* === ANIMATSIYALAR === */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>TUNIKA ERP</h1>
+        <p>Mobil va kompyuter qurilmalari orqali termal chek printerlariga chop etish tizimi</p>
+    </header>
+
+    <div class="container">
+        <!-- Boshqaruv paneli -->
+        <div class="controls-card">
+            <h3 class="section-title">Chop Etish Sozlamalari</h3>
+            
+            <div class="status-badge">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="status-text">Tizim tayyor</span>
+            </div>
+
+            <div class="input-group">
+                <label for="paper-size">Qog'oz Kengligi</label>
+                <select id="paper-size" class="select-style" onchange="changePaperSize(this.value)">
+                    <option value="80">80 mm (Katta printerlar)</option>
+                    <option value="58">58 mm (Kichik/Mobil printerlar)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="customer-name">Mijoz Ismi</label>
+                <input type="text" id="customer-name" class="input-style" value="__CUSTOMER_NAME__" oninput="updateReceipt()">
+            </div>
+
+            <div class="input-group">
+                <label for="product-qty">Profnastil Tunika (metr)</label>
+                <input type="number" id="product-qty" class="input-style" value="__PRODUCT_QTY__" oninput="updateReceipt()">
+            </div>
+
+            <div class="btn-container">
+                <!-- METOD 1: Standart Chop Etish -->
+                <button class="btn btn-primary" onclick="printStandard()">
+                    <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+                    Standart Chop Etish (window.print)
+                </button>
+                
+                <!-- METOD 2: RawBT orqali (Android uchun ideal) -->
+                <button class="btn btn-success" onclick="printRawBT()">
+                    <svg viewBox="0 0 24 24"><path d="M19.36 10.04L20.5 8.9c.2-.2.2-.5 0-.7l-1.4-1.4c-.2-.2-.5-.2-.7 0l-1.14 1.14c-1.3-.84-2.83-1.34-4.5-1.34-4.97 0-9 4.03-9 9 0 1.67.46 3.24 1.25 4.6l-1.11 1.11c-.2.2-.2.5 0 .7l1.4 1.4c.2.2.5.2.7 0l1.11-1.11c1.36.79 2.93 1.25 4.6 1.25 4.97 0 9-4.03 9-9 0-1.67-.5-3.2-1.34-4.5zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+                    RawBT orqali (Android App)
+                </button>
+
+                <!-- METOD 3: Web Bluetooth (Direkt ulanish) -->
+                <button class="btn btn-info" onclick="printWebBluetooth()">
+                    <svg viewBox="0 0 24 24"><path d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.29L13 18.17v-3.76l1.88 1.88z"/></svg>
+                    Bluetooth Printer (Tizimdan direkt)
+                </button>
+            </div>
+        </div>
+
+        <!-- Chek Emulyatori (Visual Preview) -->
+        <div class="receipt-container">
+            <span style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 500;">Chekning chop etilish ko'rinishi:</span>
+            
+            <div id="receipt" class="receipt-paper">
+                <div class="receipt-content">
+                    <div class="receipt-header">
+                        <div class="receipt-logo">BEST PROFNASTIL</div>
+                        <div>+998 93 443 88 87 | +998 94 027 00 19</div>
+                        <div>Asaka sh, Marg'iloniy ko'chasi 152</div>
+                    </div>
+                    
+                    <div class="receipt-divider"></div>
+                    
+                    <div class="receipt-row">
+                        <span>Chek №:</span>
+                        <span id="receipt-no">T-89421</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Sana:</span>
+                        <span id="receipt-date">21.05.2026 17:15</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Sotuvchi:</span>
+                        <span>Administrator</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Mijoz:</span>
+                        <span id="receipt-customer">__CUSTOMER_NAME__</span>
+                    </div>
+                    
+                    <div class="receipt-divider"></div>
+                    
+                    <div class="receipt-items">
+                        <div class="receipt-row bold">
+                            <span>Mahsulot</span>
+                            <span>Jami</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span>1. __PRODUCT_NAME__</span>
+                            <span id="receipt-item-total">__TOTAL_PRICE_FMT__</span>
+                        </div>
+                        <div class="receipt-item-details">
+                            <span id="receipt-item-details-text">__PRODUCT_QTY__ metr x __PRODUCT_PRICE_FMT__ so'm</span>
+                        </div>
+                    </div>
+                    
+                    <div class="receipt-divider"></div>
+                    
+                    <div class="receipt-row bold receipt-total">
+                        <span>UMUMIY SOMA:</span>
+                        <span id="receipt-total-sum">__TOTAL_PRICE_FMT__ so'm</span>
+                    </div>
+                    
+                    <div class="receipt-divider"></div>
+                    
+                    <div class="receipt-footer">
+                        <p>Xaridingiz uchun rahmat!</p>
+                        <p>Tunika ERP tizimi</p>
+                        <div style="margin: 15px auto 5px auto; text-align: center;">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://t.me/BESTPROFNASTILBOT" alt="QR Code" style="max-width: 120px;">
+                        </div>
+                        <p style="font-size: 0.85rem; margin-top: 5px; font-weight: bold; color: #1e293b;">@BESTPROFNASTILBOT</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Qo'llanma -->
+    <div class="guide-card">
+        <h3 class="section-title" style="margin-bottom: 20px;">Dasturchilar va Foydalanuvchilar uchun Qo'llanma</h3>
+        
+        <div class="guide-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+                <h4>CSS @media print yordamida chop etish (Eng oddiy va ishonchli usul)</h4>
+                <p>Ushbu usul kompyuter va mobil telefonlardagi brauzerning standart "Chop etish" xizmatidan foydalanadi. Buning uchun chek kengligini belgilab, chop etish vaqtida ortiqcha tugmalarni yashiruvchi CSS yozish kerak. Biz buni ushbu sahifada tayyor qildik:</p>
+                <div class="code-block">@media print {
+    body { background: white; color: black; margin: 0; }
+    .no-print, button, .controls-card, header { display: none !important; }
+    .receipt-paper { width: 100% !important; box-shadow: none !important; }
+}</div>
+            </div>
+        </div>
+
+        <div class="guide-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+                <h4>Android uchun RawBT ilovasi orqali to'g'ridan-to'g'ri chop etish</h4>
+                <p>Agar sizda termal printer Bluetooth orqali ulangan bo'lsa va brauzerning chop etish dialogi printeringizni tanimasa, Android qurilmangizga <b>RawBT</b> ilovasini yuklab oling. Keyin, veb sahifangizga quyidagi maxsus havolani joylashtiring. Bu havola bosilganda brauzerdan chek matnini to'g'ridan-to'g'ri printerga yuboradi:</p>
+                <div class="code-block">function printWithRawBT(text) {
+    const encodedText = encodeURIComponent(text);
+    const intentUrl = `intent:${encodedText}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
+    window.location.href = intentUrl;
+}</div>
+            </div>
+        </div>
+
+        <div class="guide-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+                <h4>Web Bluetooth API (Kompyuter va Android Chrome uchun)</h4>
+                <p>"Bluetooth Printer" tugmasi brauzerdan printerga to'g'ridan-to'g'ri simsiz ulanib, ESC/POS buyruqlarini yuboradi. Hech qanday qo'shimcha ilovasiz ishlaydi (iOS tizimlarida Web Bluetooth brauzerlarda bloklangan bo'lishi mumkin).</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS LOGIC -->
+    <script>
+        // Sana va vaqtni o'rnatish
+        const now = new Date();
+        const dateString = String(now.getDate()).padStart(2, '0') + '.' + 
+                           String(now.getMonth() + 1).padStart(2, '0') + '.' + 
+                           now.getFullYear() + ' ' + 
+                           String(now.getHours()).padStart(2, '0') + ':' + 
+                           String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('receipt-date').innerText = dateString;
+        
+        // Chek raqamini unikal qilish
+        const randomReceiptNo = 'T-' + Math.floor(10000 + Math.random() * 90000);
+        document.getElementById('receipt-no').innerText = randomReceiptNo;
+
+        // Qog'oz o'lchamini o'zgartirish
+        function changePaperSize(size) {
+            const receipt = document.getElementById('receipt');
+            if (size === '58') {
+                receipt.classList.add('paper-58mm');
+            } else {
+                receipt.classList.remove('paper-58mm');
+            }
+            updateStatus(`Qog'oz o'lchami ${size}mm ga o'zgartirildi`, 'success');
+        }
+
+        // Chek ma'lumotlarini yangilash
+        function updateReceipt() {
+            const customerName = document.getElementById('customer-name').value || "Mijoz";
+            const qty = parseFloat(document.getElementById('product-qty').value) || 0;
+            const price = __PRODUCT_PRICE__; // Tunikafon narxi
+            const itemTotal = qty * price;
+            
+            document.getElementById('receipt-customer').innerText = customerName;
+            document.getElementById('receipt-item-total').innerText = formatMoney(itemTotal);
+            document.getElementById('receipt-item-details-text').innerText = `${qty} metr x ${formatMoney(price)} so'm`;
+            document.getElementById('receipt-total-sum').innerText = formatMoney(itemTotal) + " so'm";
+        }
+
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('uz-UZ').format(amount);
+        }
+
+        function updateStatus(text, type = 'warning') {
+            const dot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            statusText.innerText = text;
+            
+            if (type === 'success') {
+                dot.style.background = 'var(--success-color)';
+            } else if (type === 'error') {
+                dot.style.background = '#ef4444';
+            } else {
+                dot.style.background = 'var(--warning-color)';
+            }
+        }
+
+        // 1. STANDART CHOP ETISH (window.print)
+        function printStandard() {
+            updateStatus('Standart tizim orqali chop etilmoqda...', 'success');
+            window.print();
+        }
+
+        // 2. RAWBT CHOP ETISH (Android Intent)
+        function printRawBT() {
+            updateStatus('RawBT ilovasiga yuborilmoqda...', 'success');
+            
+            // Matnli chek shablonini generatsiya qilamiz
+            const customer = document.getElementById('customer-name').value || "Mijoz";
+            const qty = document.getElementById('product-qty').value || "0";
+            const total = document.getElementById('receipt-total-sum').innerText;
+            const date = document.getElementById('receipt-date').innerText;
+            const recNo = document.getElementById('receipt-no').innerText;
+
+            const textReceipt = 
+`      BEST PROFNASTIL\n` +
+` Tel: +998 93 443 88 87\n` +
+` Tel: +998 94 027 00 19\n` +
+` Asaka sh, Marg'iloniy 152\n` +
+`------------------------\n` +
+`Chek: ${recNo}\n` +
+`Sana: ${date}\n` +
+`Mijoz: ${customer}\n` +
+`------------------------\n` +
+`1. __PRODUCT_NAME__\n` +
+`   ${qty} metr x __PRODUCT_PRICE_FMT__ so'm\n` +
+`   Jami: ${qty * __PRODUCT_PRICE__} so'm\n` +
+`------------------------\n` +
+`UMUMIY SOMA: ${total}\n` +
+`------------------------\n` +
+`Xaridingiz uchun rahmat!\n` +
+` Bizning bot: @BESTPROFNASTILBOT\n\n\n\n`;
+
+            // Android Intent formatida RawBT ga jo'natish
+            const encodedText = encodeURIComponent(textReceipt);
+            const intentUrl = `intent:${encodedText}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
+            
+            // Intentni ishga tushirish
+            window.location.href = intentUrl;
+        }
+
+        // 3. WEB BLUETOOTH CHOP ETISH (Direkt ulanish)
+        async function printWebBluetooth() {
+            updateStatus('Bluetooth qurilmalari qidirilmoqda...', 'warning');
+            
+            try {
+                // Bluetooth printer qidirish
+                const device = await navigator.bluetooth.requestDevice({
+                    filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }], // Standart Printer BLE Service UUID
+                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+                });
+
+                updateStatus(`Ulanmoqda: ${device.name}...`, 'warning');
+                
+                const server = await device.gatt.connect();
+                const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+                
+                // Yozish xarakteristikasini topish
+                const characteristics = await service.getCharacteristics();
+                let writeCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
+                
+                if (!writeCharacteristic) {
+                    throw new Error('Chop etish xarakteristikasi topilmadi!');
+                }
+
+                updateStatus('Chek chop etilmoqda...', 'success');
+
+                // Chek matnini ESC/POS baytlariga o'tkazish
+                const customer = document.getElementById('customer-name').value || "Mijoz";
+                const qty = document.getElementById('product-qty').value || "0";
+                const total = document.getElementById('receipt-total-sum').innerText;
+                const date = document.getElementById('receipt-date').innerText;
+                const recNo = document.getElementById('receipt-no').innerText;
+
+                const text = 
+`      BEST PROFNASTIL\n` +
+` Asaka sh, Marg'iloniy 152\n` +
+`------------------------\n` +
+`Chek: ${recNo}\n` +
+`Sana: ${date}\n` +
+`Mijoz: ${customer}\n` +
+`------------------------\n` +
+`1. __PRODUCT_NAME__\n` +
+`   ${qty} metr x __PRODUCT_PRICE_FMT__\n` +
+`------------------------\n` +
+`JAMI: ${total}\n` +
+`------------------------\n` +
+`Bizning bot: @BESTPROFNASTILBOT\n\n\n\n`;
+
+                const encoder = new TextEncoder();
+                const data = encoder.encode(text);
+                
+                // Baytlarni yuborish (kichik paketlarda yuborish tavsiya etiladi)
+                const chunkSize = 20;
+                for (let i = 0; i < data.length; i += chunkSize) {
+                    const chunk = data.slice(i, i + chunkSize);
+                    await writeCharacteristic.writeValue(chunk);
+                }
+
+                updateStatus('Muvaffaqiyatli chop etildi!', 'success');
+                
+            } catch (error) {
+                console.error(error);
+                updateStatus('Ulanishda xato: ' + error.message, 'error');
+                
+                // Agar Web Bluetooth qo'llab-quvvatlanmasa, ogohlantirish
+                if (!navigator.bluetooth) {
+                    alert("Ushbu brauzer yoki qurilma Web Bluetooth API-ni qo'llab-quvvatlamaydi (Safari yoki eski qurilmalarda ishlamaydi). Google Chrome brauzeridan foydalaning.");
+                }
+            }
+        }
+    </script>
+</body>
+</html>

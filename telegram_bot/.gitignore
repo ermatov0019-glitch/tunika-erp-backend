@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+ENV/
+.venv/
+
+# Environment variables
+.env
+
+# SQLite Database
+*.db
+*.sqlite3
+
+# Temp files / Artifacts
+receipt.txt
+current_receipt.html
+scratch/
+artifacts/
+modify_template.py
+test_pos.py
+test_print.py
+append.py
+
+# IDE
+.vscode/
+.idea/
